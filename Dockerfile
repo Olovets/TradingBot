@@ -1,17 +1,35 @@
-# FROM golang:1.16-buster AS build
+# Step 1: Use a Go base image to build the application
+FROM golang:1.19 as builder
 
-FROM golang:1.19.0-alpine3.15
+# Set the Current Working Directory inside the container
+WORKDIR /app
 
-ARG MODULE_PATH=/go/src/bitbucket.org/ssinbeti/commissionn-module
+# Copy the go.mod and go.sum files
+COPY go.mod go.sum ./
 
-RUN mkdir -p ${MODULE_PATH}
-WORKDIR ${MODULE_PATH}
-
-ADD . .
-
+# Download dependencies (this will cache dependencies if the go.mod and go.sum files are not changed)
 RUN go mod tidy
-RUN go mod vendor
 
-RUN go build -o ./main ./cmd/rest-server/main.go
+# Copy the entire project into the container
+COPY . .
 
-CMD ["./main"]
+# Build the Go app (Assuming main.go is located in cmd/rest-server/)
+WORKDIR /app/cmd/rest-server
+
+# Build the binary executable inside /bin directory
+RUN go build -o /bin/rest-server .
+
+# Step 2: Create a minimal image to run the app
+FROM debian:bullseye-slim
+
+# Set the Current Working Directory inside the container
+WORKDIR /root/
+
+# Copy the compiled binary from the builder image
+COPY --from=builder /bin/rest-server .
+
+# Expose the port the app will run on
+EXPOSE 8080
+
+# Run the Go app
+CMD ["./rest-server"]
