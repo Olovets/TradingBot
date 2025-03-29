@@ -1,28 +1,38 @@
 # Step 1: Use a Go base image to build the application
-FROM golang:1.24.1 as builder
+FROM golang:1.24 as builder
 
-# Set the Current Working Directory inside the container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the go.mod and go.sum files
+# Copy go.mod and go.sum files
 COPY go.mod go.sum ./
 
-# Download dependencies (this will cache dependencies if the go.mod and go.sum files are not changed)
+# Download dependencies
 RUN go mod tidy
 
 # Copy the entire project into the container
 COPY . .
 
-# Build the Go app (Assuming main.go is located in cmd/rest-server/)
-WORKDIR /app/cmd/rest-server
+# Install necessary dependencies and update glibc
+RUN apt-get update && apt-get install -y \
+    libc6-dev \
+    wget \
+    && wget http://ftp.gnu.org/gnu/libc/glibc-2.34.tar.gz \
+    && tar -xvzf glibc-2.34.tar.gz \
+    && cd glibc-2.34 \
+    && mkdir build \
+    && cd build \
+    && ../configure --prefix=/usr \
+    && make -j$(nproc) \
+    && make install
 
-# Build the binary executable inside /bin directory
+# Step 2: Build the application
+WORKDIR /app/cmd/rest-server
 RUN go build -o /bin/rest-server .
 
-# Step 2: Create a minimal image to run the app
+# Step 3: Create a minimal image to run the app
 FROM debian:bullseye-slim
 
-# Set the Current Working Directory inside the container
 WORKDIR /root/
 
 # Copy the compiled binary from the builder image
