@@ -2,13 +2,16 @@ version: '3.8'
 
 
 services:
-  candles:
-    image: lcgroups/commission-module:stage
-    container_name: commission-module
+  commissionn-module:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: commissionn-module
     ports:
-      - 8071:8071
+      - 8094:8094
     restart: always
     environment:
       - APP_ENV=stage
-      - API_TOKEN=yuzik-puzik
-      - APP_PORT=:8071
+      - API_TOKEN=7tf4ghq5modr2zelxmr8wertbd6tp0d2
+      - APP_PORT=:8094
+      - SHH_PATH=/root/.ssh/id_rsa
