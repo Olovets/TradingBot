@@ -2,9 +2,9 @@
 package marketdata
 
 import (
-	"TradingBot/models"
 	"encoding/json"
 	"fmt"
+	"github.com/Olovets/TradingBot/models"
 	"io/ioutil"
 	"log"
 	"math"

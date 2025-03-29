@@ -1,11 +1,11 @@
 package main
 
 import (
-	"TradingBot/cmd"
-	"TradingBot/cmd/rest-server/handler"
-	"TradingBot/config"
-	"TradingBot/internal/marketdata"
-	"TradingBot/models"
+	"github.com/Olovets/TradingBot/cmd"
+	"github.com/Olovets/TradingBot/cmd/rest-server/handler"
+	"github.com/Olovets/TradingBot/config"
+	"github.com/Olovets/TradingBot/internal/marketdata"
+	"github.com/Olovets/TradingBot/models"
 	"github.com/sirupsen/logrus"
 	"log"
 	"os"

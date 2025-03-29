@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"TradingBot/cmd/rest-server/handler/api"
 	"bytes"
+	"github.com/Olovets/TradingBot/cmd/rest-server/handler/api"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

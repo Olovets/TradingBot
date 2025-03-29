@@ -1,7 +1,7 @@
 package api
 
 import (
-	"TradingBot/models"
+	"github.com/Olovets/TradingBot/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
