@@ -1,0 +1,14 @@
+version: '3.8'
+
+
+services:
+  candles:
+    image: lcgroups/commission-module:stage
+    container_name: commission-module
+    ports:
+      - 8071:8071
+    restart: always
+    environment:
+      - APP_ENV=stage
+      - API_TOKEN=yuzik-puzik
+      - APP_PORT=:8071
