@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/Olovets/TradingBot/cmd"
 	"github.com/Olovets/TradingBot/cmd/rest-server/handler"
 	"github.com/sirupsen/logrus"
@@ -36,4 +37,5 @@ func main() {
 	if err := srv.Run(":8071", handlers.InitRoutes()); err != nil {
 		logrus.Fatalf("error occured while running http server: %s", err.Error())
 	}
+	fmt.Println("Server started")
 }
