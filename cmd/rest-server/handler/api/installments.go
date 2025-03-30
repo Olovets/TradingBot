@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/Olovets/TradingBot/models"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"net/http"
 )
 
@@ -19,7 +20,7 @@ func (h *APIHandler) Candles(c *gin.Context) {
 		return
 	}
 
-	candles, _ := models.GetAllCandles(h.Db)
+	candles, _ := models.GetAllCandles(&gorm.DB{})
 
 	res, e := models.GenerateCandles(candles, r.Period, r.StartTime, r.EndTime)
 
