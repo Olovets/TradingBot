@@ -15,15 +15,13 @@ type Handler struct {
 	DB *gorm.DB
 }
 
-func NewHandler(db *gorm.DB) *Handler {
-	return &Handler{
-		DB: db,
-	}
+func NewHandler() *Handler {
+	return &Handler{}
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
 
-	apiHandler := api.NewHandler(h.DB)
+	apiHandler := api.NewHandler()
 
 	gin.SetMode(gin.ReleaseMode)
 
