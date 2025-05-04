@@ -4,7 +4,7 @@ package marketdata
 import (
 	"errors"
 	"fmt"
-	"github.com/Olovets/TradingBot/models"
+	"github.com/Olovets/TradingBot/internal/models"
 	"gorm.io/gorm"
 	"log"
 )

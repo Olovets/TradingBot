@@ -4,7 +4,7 @@ package marketdata
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Olovets/TradingBot/models"
+	"github.com/Olovets/TradingBot/internal/models"
 	"io/ioutil"
 	"log"
 	"math"
@@ -81,14 +81,7 @@ func FetchCandlesLast31Days(pair string, apiKey string) ([]models.Candle, error)
 				continue
 			}
 
-			timestamp := int64(entry[0].(float64)) + 3600000 // Binance timestamps are in milliseconds
-			candleTime := time.Unix(timestamp/1000, 0)
-
-			// Skip weekends (Saturday/Sunday) if simulating forex behavior
-			weekday := candleTime.Weekday()
-			if weekday == time.Saturday || weekday == time.Sunday {
-				continue
-			}
+			timestamp := int64(entry[0].(float64)) // Binance timestamps are in milliseconds
 
 			candle := models.Candle{
 				Pair:      pair,

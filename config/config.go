@@ -17,12 +17,14 @@ func ConnectDB() (*gorm.DB, error) {
 	sslMode := os.Getenv("DB_SSLMODE")
 
 	// Construct the database connection URL
-	dsn := fmt.Sprintf("host=%s user=%s  dbname=%s port=%s sslmode=%s",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PORT"),
-		sslMode,
+	// Construct the DSN with password from an environment variable
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+		"209.97.178.26",    // PostgreSQL server IP address
+		"canadianvisa-crm", // User from environment variable
+		"yzwrfr0ycacwq9ne", // Password from environment variable
+		"canadianvisa-crm", // Database name from environment variable
+		"5432",             // PostgreSQL default port
+		sslMode,            // SSL Mode
 	)
 
 	// Connect to the database

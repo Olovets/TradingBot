@@ -2,13 +2,15 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type APIHandler struct {
+	Db *gorm.DB
 }
 
-func NewHandler() *APIHandler {
-	return &APIHandler{}
+func NewHandler(db *gorm.DB) *APIHandler {
+	return &APIHandler{Db: db}
 }
 
 func (h *APIHandler) InitAPIRoutes(apiRouter *gin.RouterGroup) {

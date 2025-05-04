@@ -2,40 +2,62 @@ package main
 
 import (
 	"fmt"
-	"github.com/Olovets/TradingBot/cmd"
-	"github.com/Olovets/TradingBot/cmd/rest-server/handler"
-	"github.com/sirupsen/logrus"
-	"os"
+	"log"
+
+	"github.com/Olovets/TradingBot/config"
+	"github.com/Olovets/TradingBot/internal/entity/blocks"
+	"github.com/Olovets/TradingBot/internal/marketdata"
+	"github.com/Olovets/TradingBot/internal/models"
+	"gorm.io/gorm"
 )
 
 func main() {
-	os.Setenv("API_TOKEN", "hello")
-	os.Setenv("APP_ENV", "stage")
-
-	handlers := handler.NewHandler()
-
-	// Your Alpha  API key
-
-	// Define the pairs you want to fetch data for
-	//pairs := []string{"EURUSDT"}
-
-	//// Loop through the pairs and fetch the candles
-	//for _, pair := range pairs {
-	//	candles, err := marketdata.FetchCandlesLast31Days(pair, apiKey)
-	//	if err != nil {
-	//		log.Printf("Error fetching candles for pair %s: %v", pair, err)
-	//		continue
-	//	}
-	//
-	//	// Save the fetched candles to the database
-	//	marketdata.SaveCandles(db, pair, candles)
-	//
-	//}
-
-	srv := new(cmd.Server)
-
-	if err := srv.Run(":8071", handlers.InitRoutes()); err != nil {
-		logrus.Fatalf("error occured while running http server: %s", err.Error())
+	var db *gorm.DB
+	db, err := config.ConnectDB()
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
+	fmt.Println("Successfully connected to database")
+
+	db.AutoMigrate(&models.Candle{})
+
+	candles, _ := marketdata.FetchCandlesLast31Days("EURUSDT", "asadasdasdas")
+
+	marketdata.SaveCandles(db, "EURUSDT", candles)
+
+	allCandles, err := models.GetAllCandles(db)
+	if err != nil {
+		log.Fatalf("Failed to get candles: %v", err)
+	}
+	allCandles = models.CutNonNeededCandles(allCandles)
+
+	actualPrice := allCandles[len(allCandles)-1].Close
+
+	candles, err = models.GenerateCandles(allCandles, "1d", int64(0), int64(0))
+	if err != nil {
+		log.Fatalf("Failed to generate candles: %v", err)
+	}
+
+	dailyOb := blocks.NewOrderBlock().IdentifyAll(candles)
+	dailyFvg := blocks.NewFvgBlock().IdentifyAll(candles)
+	rbFvg := blocks.NewRejectionBlock().IdentifyAll(candles)
+
+	dailyLastBlock := models.ReturnLast(dailyOb)
+
+	lastDailyFvg := models.ReturnLast(dailyFvg)
+	if lastDailyFvg.Timestamp > dailyLastBlock.Timestamp {
+		dailyLastBlock = lastDailyFvg
+	}
+
+	lastRbFvg := models.ReturnLast(rbFvg)
+	if lastRbFvg.Timestamp > dailyLastBlock.Timestamp {
+		dailyLastBlock = lastRbFvg
+	}
+	allDailyBlocks := models.AggregateBlocks([][]models.Block{dailyOb, dailyFvg, rbFvg})
+
+	dailyLastConterTrend := models.ReturnNearFTA(dailyLastBlock, allDailyBlocks)
+
+	fmt.Println(dailyLastConterTrend, actualPrice)
+
 	fmt.Println("Server started")
 }
